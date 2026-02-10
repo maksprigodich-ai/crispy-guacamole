@@ -54,7 +54,17 @@
       <main class="chat">
         <header class="chat__header">
           <div class="chat__title">Общий чат</div>
-          <div class="chat__status" id="connection-status">Подключение...</div>
+          <div class="chat__header-right">
+            <div class="chat__status" id="connection-status">Подключение...</div>
+            <!-- Кнопка списка онлайн-пользователей (видна на мобильных) -->
+            <button
+              type="button"
+              id="online-toggle-btn"
+              class="chat__online-toggle"
+            >
+              Онлайн
+            </button>
+          </div>
         </header>
 
         <section class="chat__messages" id="messages"></section>
@@ -90,6 +100,32 @@
         <button id="username-submit" class="username-modal__button">
           Продолжить
         </button>
+      </div>
+    </div>
+
+    <!-- Мобильная панель онлайн-пользователей -->
+    <div
+      id="online-panel-mobile"
+      class="online-panel-mobile online-panel-mobile--hidden"
+    >
+      <div class="online-panel-mobile__backdrop" id="online-panel-backdrop"></div>
+      <div class="online-panel-mobile__content">
+        <div class="online-panel-mobile__header">
+          <div class="online-panel-mobile__title">
+            Онлайн: <span id="online-count-mobile">0</span>
+          </div>
+          <button
+            type="button"
+            id="online-panel-close"
+            class="online-panel-mobile__close"
+          >
+            ✕
+          </button>
+        </div>
+        <div
+          class="online-panel-mobile__list"
+          id="online-users-mobile"
+        ></div>
       </div>
     </div>
 

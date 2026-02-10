@@ -10,6 +10,12 @@
   const statusEl = document.getElementById('connection-status');
   const onlineUsersEl = document.getElementById('online-users');
   const onlineCountEl = document.getElementById('online-count');
+  const onlinePanel = document.getElementById('online-panel-mobile');
+  const onlinePanelBackdrop = document.getElementById('online-panel-backdrop');
+  const onlinePanelClose = document.getElementById('online-panel-close');
+  const onlineUsersMobileEl = document.getElementById('online-users-mobile');
+  const onlineCountMobileEl = document.getElementById('online-count-mobile');
+  const onlineToggleBtn = document.getElementById('online-toggle-btn');
   const usernameModal = document.getElementById('username-modal');
   const usernameInput = document.getElementById('username-input');
   const usernameSubmit = document.getElementById('username-submit');
@@ -84,33 +90,42 @@
     messagesEl.appendChild(wrapper);
   }
 
-  function renderOnlineUsers(users) {
-    if (!onlineUsersEl || !Array.isArray(users)) return;
+  function renderOnlineList(targetEl, users) {
+    if (!targetEl) return;
+    targetEl.innerHTML = '';
 
-    onlineUsersEl.innerHTML = '';
-
-    if (!users.length) {
+    if (!Array.isArray(users) || !users.length) {
       const empty = document.createElement('div');
       empty.classList.add('chat-item');
       const name = document.createElement('div');
       name.classList.add('chat-item__name');
       name.textContent = 'Пока никого нет';
       empty.appendChild(name);
-      onlineUsersEl.appendChild(empty);
-    } else {
-      users.forEach((name) => {
-        const item = document.createElement('div');
-        item.classList.add('chat-item');
-        const nameEl = document.createElement('div');
-        nameEl.classList.add('chat-item__name');
-        nameEl.textContent = name;
-        item.appendChild(nameEl);
-        onlineUsersEl.appendChild(item);
-      });
+      targetEl.appendChild(empty);
+      return;
     }
 
+    users.forEach((name) => {
+      const item = document.createElement('div');
+      item.classList.add('chat-item');
+      const nameEl = document.createElement('div');
+      nameEl.classList.add('chat-item__name');
+      nameEl.textContent = name;
+      item.appendChild(nameEl);
+      targetEl.appendChild(item);
+    });
+  }
+
+  function renderOnlineUsers(users) {
+    renderOnlineList(onlineUsersEl, users);
+    renderOnlineList(onlineUsersMobileEl, users);
+
+    const count = Array.isArray(users) ? users.length : 0;
     if (onlineCountEl) {
-      onlineCountEl.textContent = String(users.length);
+      onlineCountEl.textContent = String(count);
+    }
+    if (onlineCountMobileEl) {
+      onlineCountMobileEl.textContent = String(count);
     }
   }
 
@@ -238,6 +253,16 @@
     closeInlineUsernameEditor();
   }
 
+  function openOnlinePanel() {
+    if (!onlinePanel) return;
+    onlinePanel.classList.remove('online-panel-mobile--hidden');
+  }
+
+  function closeOnlinePanel() {
+    if (!onlinePanel) return;
+    onlinePanel.classList.add('online-panel-mobile--hidden');
+  }
+
   function applyUsername() {
     const value = usernameInput.value.trim();
     if (!value) {
@@ -333,6 +358,17 @@
           closeInlineUsernameEditor();
         }, 100);
       });
+    }
+
+    // Мобильная панель онлайн-пользователей
+    if (onlineToggleBtn) {
+      onlineToggleBtn.addEventListener('click', openOnlinePanel);
+    }
+    if (onlinePanelClose) {
+      onlinePanelClose.addEventListener('click', closeOnlinePanel);
+    }
+    if (onlinePanelBackdrop) {
+      onlinePanelBackdrop.addEventListener('click', closeOnlinePanel);
     }
   });
 })();
