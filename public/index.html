@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Простой мессенджер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Левая панель: онлайн-пользователи -->
+      <aside class="sidebar">
+        <div class="sidebar__header">
+          <div class="sidebar__title">Мессенджер</div>
+          <div class="sidebar__subtitle">
+            Онлайн: <span id="online-count">0</span>
+          </div>
+        </div>
+        <div class="sidebar__chats" id="online-users">
+          <!-- Список онлайн-пользователей рендерится через JS -->
+        </div>
+        <div class="sidebar__footer">
+          <span class="sidebar__hint">Имя: <span id="current-username">—</span></span>
+        </div>
+      </aside>
+
+      <!-- Центральная область с сообщениями -->
+      <main class="chat">
+        <header class="chat__header">
+          <div class="chat__title">Общий чат</div>
+          <div class="chat__status" id="connection-status">Подключение...</div>
+        </header>
+
+        <section class="chat__messages" id="messages"></section>
+
+        <form class="chat__input-area" id="message-form">
+          <textarea
+            id="message-input"
+            class="chat__input"
+            placeholder="Введите сообщение и нажмите Enter..."
+            rows="1"
+          ></textarea>
+          <button type="submit" class="chat__send-btn" title="Отправить">
+            ▶
+          </button>
+        </form>
+      </main>
+    </div>
+
+    <!-- Диалог ввода имени пользователя -->
+    <div class="username-modal" id="username-modal">
+      <div class="username-modal__content">
+        <h1 class="username-modal__title">Как вас называть?</h1>
+        <p class="username-modal__text">
+          Введите имя, которое будут видеть другие участники чата.
+        </p>
+        <input
+          type="text"
+          id="username-input"
+          class="username-modal__input"
+          placeholder="Например: Max"
+          maxlength="32"
+        />
+        <button id="username-submit" class="username-modal__button">
+          Продолжить
+        </button>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+  </body>
+  </html>
+
+
