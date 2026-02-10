@@ -53,9 +53,33 @@
       <!-- Центральная область с сообщениями -->
       <main class="chat">
         <header class="chat__header">
-          <div class="chat__title">Общий чат</div>
+          <div class="chat__title">
+            <div class="chat__group-avatar" id="group-avatar"></div>
+            <span id="group-name">Общий чат</span>
+            <button
+              type="button"
+              id="group-edit-name-btn"
+              class="chat__group-edit-btn"
+            >
+              ✎
+            </button>
+            <button
+              type="button"
+              id="group-edit-avatar-btn"
+              class="chat__group-edit-btn"
+            >
+              📷
+            </button>
+          </div>
           <div class="chat__header-right">
             <div class="chat__status" id="connection-status">Подключение...</div>
+            <button
+              type="button"
+              id="chat-clear-btn"
+              class="chat__clear-btn"
+            >
+              Очистить
+            </button>
             <!-- Кнопка списка онлайн-пользователей (видна на мобильных) -->
             <button
               type="button"
