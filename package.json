@@ -1,0 +1,28 @@
+{
+  "name": "desktop-chat-messenger",
+  "version": "1.0.0",
+  "description": "Простой веб-мессенджер (desktop-first) на Node.js, Express и Socket.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "chat",
+    "messenger",
+    "websocket",
+    "socket.io"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.0",
+    "mongoose": "^8.18.0",
+    "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
+
+
