@@ -131,10 +131,71 @@ body {
   border-top: 1px solid var(--border-subtle);
   font-size: 13px;
   color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .sidebar__hint span#current-username {
   color: var(--text-primary);
+}
+
+.sidebar__me-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sidebar__change-btn {
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.sidebar__change-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(129, 140, 248, 0.8);
+}
+
+.sidebar__change-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar__change-form--hidden {
+  display: none;
+}
+
+.sidebar__change-input {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+}
+
+.sidebar__change-input:focus {
+  border-color: rgba(129, 140, 248, 0.9);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
+}
+
+.sidebar__change-save {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  font-size: 11px;
+  cursor: pointer;
 }
 
 /* Центральная часть */

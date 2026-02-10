@@ -14,6 +14,10 @@
   const usernameInput = document.getElementById('username-input');
   const usernameSubmit = document.getElementById('username-submit');
   const currentUsernameLabel = document.getElementById('current-username');
+  const changeUsernameBtn = document.getElementById('change-username-btn');
+  const changeUsernameForm = document.getElementById('change-username-form');
+  const changeUsernameInput = document.getElementById('change-username-input');
+  const changeUsernameSave = document.getElementById('change-username-save');
 
   let socket = null;
   let username = null;
@@ -192,6 +196,48 @@
     usernameInput.focus();
   }
 
+  function openInlineUsernameEditor() {
+    if (!changeUsernameForm || !changeUsernameInput) return;
+    changeUsernameForm.classList.remove('sidebar__change-form--hidden');
+    changeUsernameInput.value = username || '';
+    changeUsernameInput.focus();
+    changeUsernameInput.select();
+  }
+
+  function closeInlineUsernameEditor() {
+    if (!changeUsernameForm) return;
+    changeUsernameForm.classList.add('sidebar__change-form--hidden');
+  }
+
+  function applyInlineUsername() {
+    if (!changeUsernameInput) return;
+    const value = changeUsernameInput.value.trim();
+    if (!value) {
+      closeInlineUsernameEditor();
+      return;
+    }
+
+    const nextName = value.slice(0, 32);
+    if (nextName === username) {
+      closeInlineUsernameEditor();
+      return;
+    }
+
+    // Мгновенно обновляем локально
+    username = nextName;
+    currentUsernameLabel.textContent = username;
+    try {
+      window.localStorage.setItem('chat-username', username);
+    } catch (_) {}
+
+    // И отправляем запрос на обновление имени на сервере
+    if (socket) {
+      socket.emit('user:updateName', { username });
+    }
+
+    closeInlineUsernameEditor();
+  }
+
   function applyUsername() {
     const value = usernameInput.value.trim();
     if (!value) {
@@ -255,6 +301,39 @@
     });
 
     messageInput.addEventListener('input', autoResizeTextarea);
+
+    // Смена ника в футере
+    if (changeUsernameBtn) {
+      changeUsernameBtn.addEventListener('click', () => {
+        if (!username) {
+          openUsernameModal();
+          return;
+        }
+        openInlineUsernameEditor();
+      });
+    }
+
+    if (changeUsernameSave) {
+      changeUsernameSave.addEventListener('click', applyInlineUsername);
+    }
+
+    if (changeUsernameInput) {
+      changeUsernameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyInlineUsername();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeInlineUsernameEditor();
+        }
+      });
+      changeUsernameInput.addEventListener('blur', () => {
+        // Лёгкий UX: при потере фокуса просто скрываем форму без изменения
+        setTimeout(() => {
+          closeInlineUsernameEditor();
+        }, 100);
+      });
+    }
   });
 })();
 

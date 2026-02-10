@@ -20,7 +20,33 @@
           <!-- Список онлайн-пользователей рендерится через JS -->
         </div>
         <div class="sidebar__footer">
-          <span class="sidebar__hint">Имя: <span id="current-username">—</span></span>
+          <div class="sidebar__me-row">
+            <span class="sidebar__hint">
+              Имя: <span id="current-username">—</span>
+            </span>
+            <button id="change-username-btn" class="sidebar__change-btn" type="button">
+              Изменить
+            </button>
+          </div>
+          <div
+            id="change-username-form"
+            class="sidebar__change-form sidebar__change-form--hidden"
+          >
+            <input
+              id="change-username-input"
+              class="sidebar__change-input"
+              type="text"
+              maxlength="32"
+              placeholder="Новый ник"
+            />
+            <button
+              id="change-username-save"
+              class="sidebar__change-save"
+              type="button"
+            >
+              Сохранить
+            </button>
+          </div>
         </div>
       </aside>
 
