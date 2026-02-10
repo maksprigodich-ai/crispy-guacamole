@@ -154,15 +154,18 @@
       if (Array.isArray(history)) {
         history.forEach((m) => renderMessage(m));
       }
-       // При первичной загрузке всегда прокручиваем в самый низ
+      // При первичной загрузке всегда прокручиваем в самый низ
       scrollToBottom(true);
     });
 
     // Новое сообщение
     socket.on('chat:message', (msg) => {
+      const shouldStick = isNearBottom();
       renderMessage(msg);
-      // Прокручиваем только если пользователь был внизу
-      scrollToBottom();
+      // Прокручиваем только если пользователь был (или почти был) внизу до прихода сообщения
+      if (shouldStick) {
+        scrollToBottom(true);
+      }
     });
   }
 
