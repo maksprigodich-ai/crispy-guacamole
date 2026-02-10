@@ -18,22 +18,18 @@
   let socket = null;
   let username = null;
 
-  // Проверяем, находится ли пользователь внизу чата (или близко к нему)
-  function isNearBottom() {
+  // Проверяем, находится ли пользователь внизу чата
+  function isAtBottom() {
     if (!messagesEl) return true;
-    const threshold = 40; // px допускается "зазор" от низа
     const distanceFromBottom =
       messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight;
-    return distanceFromBottom <= threshold;
+    // Считаем, что "внизу", только если практически упёрлись в конец
+    return distanceFromBottom <= 2;
   }
 
   // Автопрокрутка чата вниз
-  function scrollToBottom(force = false) {
+  function scrollToBottom() {
     if (!messagesEl) return;
-    if (!force && !isNearBottom()) {
-      // Пользователь пролистал вверх — не сбрасываем позицию
-      return;
-    }
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
@@ -155,16 +151,16 @@
         history.forEach((m) => renderMessage(m));
       }
       // При первичной загрузке всегда прокручиваем в самый низ
-      scrollToBottom(true);
+      scrollToBottom();
     });
 
     // Новое сообщение
     socket.on('chat:message', (msg) => {
-      const shouldStick = isNearBottom();
+      const wasAtBottom = isAtBottom();
       renderMessage(msg);
-      // Прокручиваем только если пользователь был (или почти был) внизу до прихода сообщения
-      if (shouldStick) {
-        scrollToBottom(true);
+      // Прокручиваем только если пользователь был внизу до прихода сообщения
+      if (wasAtBottom) {
+        scrollToBottom();
       }
     });
   }
