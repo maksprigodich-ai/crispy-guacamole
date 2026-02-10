@@ -115,6 +115,21 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Обновление имени пользователя без изменения истории
+  socket.on('user:updateName', (data) => {
+    const rawName = sanitizeUsername(data?.username);
+    if (!rawName) return;
+
+    const finalName = makeUniqueUsername(rawName);
+    socket.data.username = finalName;
+    onlineUsersBySocket.set(socket.id, finalName);
+
+    // Подтверждаем новое имя конкретному пользователю
+    socket.emit('user:accepted', { username: finalName });
+    // Рассылаем обновлённый список онлайн-пользователей всем
+    io.emit('users:list', getOnlineUsernames());
+  });
+
   // Обработка входящего сообщения
   socket.on('chat:message', async (data) => {
     const user = sanitizeUsername(socket.data.username);
