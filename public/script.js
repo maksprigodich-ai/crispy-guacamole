@@ -18,9 +18,22 @@
   let socket = null;
   let username = null;
 
+  // Проверяем, находится ли пользователь внизу чата (или близко к нему)
+  function isNearBottom() {
+    if (!messagesEl) return true;
+    const threshold = 40; // px допускается "зазор" от низа
+    const distanceFromBottom =
+      messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight;
+    return distanceFromBottom <= threshold;
+  }
+
   // Автопрокрутка чата вниз
-  function scrollToBottom() {
+  function scrollToBottom(force = false) {
     if (!messagesEl) return;
+    if (!force && !isNearBottom()) {
+      // Пользователь пролистал вверх — не сбрасываем позицию
+      return;
+    }
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
@@ -141,12 +154,14 @@
       if (Array.isArray(history)) {
         history.forEach((m) => renderMessage(m));
       }
-      scrollToBottom();
+       // При первичной загрузке всегда прокручиваем в самый низ
+      scrollToBottom(true);
     });
 
     // Новое сообщение
     socket.on('chat:message', (msg) => {
       renderMessage(msg);
+      // Прокручиваем только если пользователь был внизу
       scrollToBottom();
     });
   }

@@ -40,6 +40,7 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden; /* Весь сайт не скроллится, скролл только внутри чата */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
   color: var(--text-primary);
@@ -165,6 +166,7 @@ body {
 
 .chat__messages {
   flex: 1;
+  min-height: 0; /* позволяет flex-контейнеру корректно сжиматься и скроллиться */
   padding: 16px 18px 10px;
   overflow-y: auto;
   display: flex;
