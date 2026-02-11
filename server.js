@@ -265,7 +265,7 @@ io.on('connection', (socket) => {
   });
 
   // Назначение/снятие модератора другим пользователям
-  socket.on('admin:setModerator', (data) => {
+  socket.on('admin:setModerator', async (data) => {
     if (!isModerator(socket)) return;
     const targetName = sanitizeUsername(data?.username);
     if (!targetName) return;
@@ -367,3 +367,24 @@ async function start() {
 start();
 
 
+
+
+// ===== User Model =====
+const userSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true, unique: true, trim: true, maxlength: 32 },
+    rank: { type: String, default: 'user' },
+  },
+  { versionKey: false }
+);
+
+const User = mongoose.model('User', userSchema);
+// ========================
+
+
+io.on('connection', (socket) => {
+  socket.on('admin:setRank', async (data) => {
+    const { username, rank } = data;
+    await User.findOneAndUpdate({ username }, { rank });
+  });
+});
