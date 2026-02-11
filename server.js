@@ -10,6 +10,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
+const sqlite3 = require('sqlite3').verbose();
 
 // Локально можно использовать файл .env (на хостинге переменные задаются в панели)
 // Не делаем обязательной зависимость от .env — если файла нет, просто продолжаем.
@@ -23,6 +24,7 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
+const SQLITE_PATH = process.env.SQLITE_PATH || path.join(__dirname, 'users.db');
 
 if (!MONGO_URI) {
   console.error('Ошибка: не задана переменная окружения MONGO_URI');
@@ -98,6 +100,75 @@ function sanitizeAvatarUrl(value) {
 function isModerator(socket) {
   return !!socket.data.isModerator;
 }
+
+
+let usersDb = null;
+
+function runSql(query, params = []) {
+  return new Promise((resolve, reject) => {
+    usersDb.run(query, params, function onRun(err) {
+      if (err) return reject(err);
+      resolve(this);
+    });
+  });
+}
+
+function getSql(query, params = []) {
+  return new Promise((resolve, reject) => {
+    usersDb.get(query, params, (err, row) => {
+      if (err) return reject(err);
+      resolve(row);
+    });
+  });
+}
+
+async function ensureUsersTable() {
+  await runSql(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nickname TEXT UNIQUE,
+      rank TEXT
+    )
+  `);
+}
+
+async function saveOrGetUser(nickname) {
+  const existingUser = await getSql(
+    'SELECT nickname, rank FROM users WHERE nickname = ?',
+    [nickname]
+  );
+
+  if (existingUser) {
+    return {
+      nickname: existingUser.nickname,
+      rank: existingUser.rank || 'Игрок',
+    };
+  }
+
+  await runSql('INSERT INTO users (nickname, rank) VALUES (?, ?)', [
+    nickname,
+    'Игрок',
+  ]);
+
+  return { nickname, rank: 'Игрок' };
+}
+
+app.use(express.json());
+
+app.post('/api/users/login', async (req, res) => {
+  try {
+    const nickname = sanitizeUsername(req.body?.nickname);
+    if (!nickname) {
+      return res.status(400).json({ error: 'Никнейм обязателен' });
+    }
+
+    const user = await saveOrGetUser(nickname);
+    return res.json(user);
+  } catch (err) {
+    console.error('Ошибка сохранения пользователя:', err);
+    return res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
 
 // Раздаём статику из папки public
 app.use(express.static(path.join(__dirname, 'public')));
@@ -352,6 +423,10 @@ io.on('connection', (socket) => {
 
 async function start() {
   try {
+    usersDb = new sqlite3.Database(SQLITE_PATH);
+    await ensureUsersTable();
+    console.log(`SQLite подключена (${SQLITE_PATH})`);
+
     await mongoose.connect(MONGO_URI);
     console.log('MongoDB подключена');
 
@@ -359,7 +434,7 @@ async function start() {
       console.log(`Сервер запущен (порт ${PORT})`);
     });
   } catch (err) {
-    console.error('Не удалось подключиться к MongoDB:', err);
+    console.error('Не удалось запустить сервер:', err);
     process.exit(1);
   }
 }
