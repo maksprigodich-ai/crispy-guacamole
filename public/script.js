@@ -20,6 +20,7 @@
   const usernameInput = document.getElementById('username-input');
   const usernameSubmit = document.getElementById('username-submit');
   const currentUsernameLabel = document.getElementById('current-username');
+  const currentRankLabel = document.getElementById('current-rank');
   const changeUsernameBtn = document.getElementById('change-username-btn');
   const changeUsernameForm = document.getElementById('change-username-form');
   const changeUsernameInput = document.getElementById('change-username-input');
@@ -34,6 +35,7 @@
   let username = null;
   let isModerator = false;
   let moderatorName = null;
+  let userRank = 'Игрок';
 
   // Проверяем, находится ли пользователь внизу чата
   function isAtBottom() {
@@ -344,6 +346,26 @@
     closeInlineUsernameEditor();
   }
 
+
+  async function loginUser(nextUsername) {
+    const response = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nickname: nextUsername }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Не удалось сохранить пользователя');
+    }
+
+    const data = await response.json();
+    userRank = data?.rank || 'Игрок';
+    if (currentRankLabel) {
+      currentRankLabel.textContent = userRank;
+    }
+    return data;
+  }
+
   function openOnlinePanel() {
     if (!onlinePanel) return;
     onlinePanel.classList.remove('online-panel-mobile--hidden');
@@ -354,34 +376,50 @@
     onlinePanel.classList.add('online-panel-mobile--hidden');
   }
 
-  function applyUsername() {
+  async function applyUsername() {
     const value = usernameInput.value.trim();
     if (!value) {
       usernameInput.focus();
       return;
     }
-    username = value.slice(0, 32);
-    usernameModal.classList.add('username-modal--hidden');
-    currentUsernameLabel.textContent = username;
 
-    // Подключаемся к сокету только после того, как знаем имя
-    if (!socket) {
-      initSocket();
-    } else {
-      socket.emit('user:join', { username });
+    const nextUsername = value.slice(0, 32);
+
+    try {
+      const user = await loginUser(nextUsername);
+      username = user.nickname;
+      usernameModal.classList.add('username-modal--hidden');
+      currentUsernameLabel.textContent = username;
+
+      // Подключаемся к сокету только после того, как знаем имя
+      if (!socket) {
+        initSocket();
+      } else {
+        socket.emit('user:join', { username });
+      }
+    } catch (err) {
+      alert('Не удалось выполнить вход. Попробуйте снова.');
     }
   }
 
   // Инициализация
   window.addEventListener('DOMContentLoaded', () => {
+    if (currentRankLabel) currentRankLabel.textContent = userRank;
     // Попытаемся прочитать имя из localStorage
     try {
       const stored = window.localStorage.getItem('chat-username');
       if (stored && stored.trim()) {
-        username = stored.trim().slice(0, 32);
-        currentUsernameLabel.textContent = username;
-        usernameModal.classList.add('username-modal--hidden');
-        initSocket();
+        const storedName = stored.trim().slice(0, 32);
+        loginUser(storedName)
+          .then((user) => {
+            username = user.nickname;
+            currentUsernameLabel.textContent = username;
+            usernameModal.classList.add('username-modal--hidden');
+            initSocket();
+          })
+          .catch(() => {
+            openUsernameModal();
+          });
       } else {
         openUsernameModal();
       }
